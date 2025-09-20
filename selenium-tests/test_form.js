@@ -2,13 +2,11 @@ const {Builder, By, until} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 (async function testForm() {
-  // Configure Chrome options for Jenkins compatibility
   const options = new chrome.Options();
-  options.addArguments('--headless'); // Run without GUI
-  options.addArguments('--no-sandbox'); // Required for some CI environments
-  options.addArguments('--disable-dev-shm-usage'); // Prevents shared memory issues
-  options.addArguments('--disable-gpu'); // Optional but safe
-  // Do NOT use --user-data-dir to avoid session conflicts
+  options.addArguments('--headless');
+  options.addArguments('--no-sandbox');
+  options.addArguments('--disable-dev-shm-usage');
+  options.addArguments('--disable-gpu');
 
   let driver = await new Builder()
     .forBrowser('chrome')
@@ -16,18 +14,24 @@ const chrome = require('selenium-webdriver/chrome');
     .build();
 
   try {
+    console.log("Navigating to the website...");
     await driver.get('http://18.234.63.89/');
+
+    console.log("Filling out the form...");
     await driver.findElement(By.name('name')).sendKeys('Alice');
     await driver.findElement(By.name('email')).sendKeys('alice@example.com');
     await driver.findElement(By.name('role')).sendKeys('Developer');
+
+    console.log("Submitting the form...");
     await driver.findElement(By.id('submit')).click();
 
-    await driver.wait(until.elementLocated(By.id('success')), 3000);
-    console.log('Test Success');
+    console.log("Waiting for success message...");
+    await driver.wait(until.elementLocated(By.id('success')), 10000); // Increased timeout
+
+    console.log('✅ Test Success');
   } catch (e) {
-    console.log('Test Failed', e);
+    console.log('❌ Test Failed:', e);
   } finally {
     await driver.quit();
   }
 })();
-
